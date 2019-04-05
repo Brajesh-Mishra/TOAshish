@@ -1,0 +1,182 @@
+package com.capgemini.Capstore;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.example.model.Product;
+
+
+
+@Controller
+public class URIController {
+
+
+
+
+	@PersistenceContext
+	EntityManager em;
+
+
+	@RequestMapping("/")
+	public  String home(ModelMap map) {
+
+
+
+		Query query=em.createQuery("select distinct p.prodCategory from Product p");
+		/*
+		List<String> categoryList=query.getResultList();
+
+		List<Product> productList = new ArrayList<>();
+		 */	
+		/*Map<String,List<Product>> categoryMap = new HashMap<>();
+		//Map<String,List<String>> urlMap=new HashMap<>();
+
+		for(String prodCategory:categoryList) 
+		{
+			query=em.createQuery("select p from Product p where p.prodCategory=:cat").setParameter("cat",prodCategory);
+
+
+			productList=query.getResultList();
+			for(Product product:productList) 
+			{
+				Query query1=em.createNativeQuery(" select url from images where image_id=(select image_id from prod_images where prod_id='"+product.getProdId()+"')");
+				List<String> urlList=query1.getResultList();
+				System.out.println(urlList);
+			//	System.out.println();
+				//urlMap.put(product.getProd_id(), urlList);
+
+
+			}
+
+
+
+			categoryMap.put(prodCategory, productList);
+
+
+		}
+		//map.addAttribute("urlmap",urlMap);
+		map.addAttribute("map",categoryMap);
+
+		 */
+
+
+		List<String> categoryNameList=query.getResultList();
+
+		List<Product> productList = new ArrayList<>();
+
+		Map<String,Map<String,Product>> categoryMap = new HashMap<>();
+		//Map<String,List<String>> urlMap=new HashMap<>();
+		Map<String,Product>  productMap;
+		for(String prodCategory:categoryNameList) 
+		{
+			productMap =new HashMap<>();
+			query=em.createQuery("select p from Product p where p.prodCategory=:cat").setParameter("cat",prodCategory);					
+			productList=query.getResultList();
+			for(Product product:productList) 
+			{
+
+				Query query1=em.createNativeQuery(" select url from images where image_id=(select image_id from prod_images where prod_id='"+product.getProdId()+"')");
+				List<String> result=query1.getResultList();
+				for(String ur:result)
+					productMap.put(ur, product);		
+
+				//	System.out.println();
+				//urlMap.put(product.getProd_id(), urlList);			
+			}				
+			categoryMap.put(prodCategory,productMap );	
+			//System.out.println(categoryMap.keySet());
+			
+			
+			
+
+		}
+		//System.out.println(categoryMap.get("Shoes").get("https://rukminim1.flixcart.com/image/714/857/jcrz6vk0/shoe/q/5/w/sc0322g-6-sparx-blackgrey-original-imafftpbtkxmymuw.jpeg?q=50").getProdId());
+		/*Collection<Map<String, Product>> mapd=categoryMap.values();
+		for(Map<String,Product> m: mapd)
+		{
+			for(Product products:m.values())
+			{
+				System.out.println(products.getName());
+			}
+		}
+*/
+		
+		/*Set<Entry<String,Map<String,Product>>>  anb=categoryMap.entrySet();
+		for(Entry<String,Map<String,Product>> var:anb)
+		{
+			var.getKey();
+			System.out.println(var.getKey());
+		}
+		*/
+		
+		map.addAttribute("map",categoryMap);
+
+		return "/views/index.jsp";
+	}
+	/*
+	@RequestMapping("/index")
+	public  String index() {
+
+		return "/views/index.jsp";
+
+
+	}
+
+	@RequestMapping("/getLogin")
+	public  String login() {
+
+		return "/views/login.jsp";
+
+
+	}
+
+	@RequestMapping("/registerAsCustomer")
+	public  String registerCustomer() {
+
+		return "/views/registerCustomer.jsp";
+
+
+	}
+
+
+	@RequestMapping("/getContact")
+	public  String contact() {
+
+		return "/views/contact.jsp";
+
+
+	}
+
+
+
+	@RequestMapping(value="/getProduct/{productId}")
+	public ModelAndView getProductPage(@PathVariable int productId ) {
+		System.out.println("consoler"+productId);
+
+		RestTemplate restTemplate = new RestTemplate();
+		Product displayProduct = restTemplate.getForObject("http://localhost:8099/product.json",Product.class);
+		return new ModelAndView("/views/product.jsp","product",displayProduct);
+	}
+
+	@RequestMapping(value="/getCheckout")
+	public String getCheckoutPage() {
+
+		return "/views/checkout.jsp";
+	}
+
+	 */	}
